@@ -1,0 +1,102 @@
+/*Subquery Mania + WITH Quiz */
+/* Question 1 : Provide the name of the sales_rep in each region with the largest amount of total_amt_usd sales. */
+/* Solution 1 with Subquery */
+
+SELECT t3.rep, t2.region, t2.max_total
+FROM
+    (SELECT region, MAX(total) as max_total
+    FROM(
+         SELECT s.name as rep, r.name as region,  SUM(o.total_amt_usd) AS total
+          FROM accounts a 
+          JOIN sales_reps s 
+          ON a.sales_rep_id = s.id
+          JOIN orders o
+          ON a.id =  o.account_id
+          JOIN region r 
+          ON s.region_id = r.id
+          GROUP BY 1,2
+          ORDER BY 3 DESC ) t1
+          GROUP BY 1) t2
+JOIN
+          (SELECT s.name as rep, r.name as region,  SUM(o.total_amt_usd) AS total
+          FROM accounts a 
+          JOIN sales_reps s 
+          ON a.sales_rep_id = s.id
+          JOIN orders o
+          ON a.id =  o.account_id
+          JOIN region r 
+          ON s.region_id = r.id
+          GROUP BY 1,2
+          ORDER BY 3) t3
+ON t2.max_total = t3.total AND t2.region = t3.region
+/* Solution 2 with "WITH" */
+WITH sub1 AS (
+             SELECT s.name as rep, r.name as region,  SUM(o.total_amt_usd) AS total
+             FROM accounts a 
+             JOIN sales_reps s 
+             ON a.sales_rep_id = s.id
+             JOIN orders o
+             ON a.id =  o.account_id
+             JOIN region r 
+             ON s.region_id = r.id
+             GROUP BY 1,2
+             ORDER BY 3 DESC ),
+sub2 as (SELECT region, MAX(total) as max_total
+         FROM sub1
+         GROUP BY 1 )
+         
+SELECT sub1.rep, sub2.region, sub2.max_total
+FROM sub1
+Join sub2
+ON sub2.max_total = sub1.total AND sub1.region = sub2.region
+
+/* Question 2 :For the region with the largest (sum) of sales total_amt_usd, how many total (count) orders were placed? */
+/* Solution 1 with Subquery */
+SELECT r.name, COUNT(o.total) total_orders
+FROM sales_reps s
+JOIN accounts a
+ON a.sales_rep_id = s.id
+JOIN orders o
+ON o.account_id = a.id
+JOIN region r
+ON r.id = s.region_id
+GROUP BY 1
+HAVING SUM(o.total_amt_usd) = (
+                              SELECT MAX(total)
+                               FROM
+                                  (SELECT r.name, SUM(o.total_amt_usd) as total
+                                  FROM sales_reps s
+                                  JOIN accounts a
+                                  ON a.sales_rep_id = s.id
+                                  JOIN orders o
+                                  ON o.account_id = a.id
+                                  JOIN region r
+                                  ON r.id = s.region_id
+                                  GROUP BY 1) sub)
+
+/* Solution 2 with "WITH" */
+WITH table1 as (
+               SELECT r.name, SUM(o.total_amt_usd) as total
+               FROM sales_reps s
+               JOIN accounts a
+               ON a.sales_rep_id = s.id
+               JOIN orders o
+               ON o.account_id = a.id
+               JOIN region r
+               ON r.id = s.region_id
+               GROUP BY 1),
+table2 as (SELECT MAX(total)
+           FROM table1)
+SELECT r.name, COUNT(*) total_orders
+FROM sales_reps s
+JOIN accounts a
+ON a.sales_rep_id = s.id
+JOIN orders o
+ON o.account_id = a.id
+JOIN region r
+ON r.id = s.region_id
+GROUP BY r.name
+HAVING SUM(o.total_amt_usd) = (select * from table2)
+
+           
+
