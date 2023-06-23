@@ -135,3 +135,17 @@ FROM(SELECT CASE
     END AS vowel_or_else
     FROM accounts)t1
 GROUP BY vowel_or_else
+
+/* Quiz: POSITION, STRPOS, & SUBSTR */
+
+/* Question 1:Use the accounts table to create first and last name columns that hold the first and last names for the primary_poc.*/
+
+SELECT primary_poc,LEFT(primary_poc,(STRPOS( primary_poc, ' '))) as first_name, RIGHT(primary_poc,LENGTH(primary_poc)-STRPOS( primary_poc, ' ')) as last_name
+FROM accounts
+
+/* Question 2:Now see if you can do the same thing for every rep name in the sales_reps table. Again provide first and last name columns.*/
+
+SELECT name, LEFT(name,(STRPOS(name, ' '))) as first_name,
+             RIGHT(name, LENGTH(name)-STRPOS(name, ' ')) last_name
+FROM sales_reps
+
