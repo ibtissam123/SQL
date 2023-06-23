@@ -98,5 +98,40 @@ ON r.id = s.region_id
 GROUP BY r.name
 HAVING SUM(o.total_amt_usd) = (select * from table2)
 
-           
+/* Quiz: LEFT & RIGHT */
+/* Question 1: In the accounts table, there is a column holding the website for each company. The last three digits specify what type of web address they are using. A list of extensions (and pricing) is provided here. Pull these extensions and provide how many of each website type exist in the accounts table.*/
 
+SELECT domaine, COUNT(*)
+FROM 
+(SELECT RIGHT(website, 3) as domaine
+FROM accounts) t1
+GROUP BY 1
+
+
+/* Question 2:There is much debate about how much the name (or even the first letter of a company name) matters. Use the accounts table to pull the first letter of each company name to see the distribution of company names that begin with each letter (or number).*/
+
+SELECT first_letter, COUNT(*)
+FROM
+(SELECT name, LEFT(name, 1) first_letter
+FROM accounts)t1
+GROUP BY 1
+ORDER BY 1
+
+/* Question 3:Use the accounts table and a CASE statement to create two groups: one group of company names that start with a number and a second group of those company names that start with a letter. What proportion of company names start with a letter?*/
+SELECT  letter_or_number, count(*)
+FROM
+      (SELECT CASE
+      WHEN (LEFT(name, 1) in ( 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'))THEN 'letters'
+      ELSE 'numbers'
+      END AS letter_or_number
+      FROM accounts)t1
+GROUP BY 1
+           
+/* Question 4: Consider vowels as a, e, i, o, and u. What proportion of company names start with a vowel, and what percent start with anything else?*/
+SELECT vowel_or_else, count(*)
+FROM(SELECT CASE
+     WHEN (LEFT(UPPER(name), 1) in ( 'A','E','I','O','U'))THEN 'vowels'
+    ELSE 'else'
+    END AS vowel_or_else
+    FROM accounts)t1
+GROUP BY vowel_or_else
