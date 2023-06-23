@@ -163,3 +163,9 @@ WITH t1 AS (
 SELECT first_name, last_name, CONCAT(first_name, '.', last_name, '@', name, '.com'), LEFT(LOWER(first_name), 1) || RIGHT(LOWER(first_name), 1) || LEFT(LOWER(last_name), 1) || RIGHT(LOWER(last_name), 1) || LENGTH(first_name) || LENGTH(last_name) || REPLACE(UPPER(name), ' ', '')
 FROM t1;
 
+/* Quiz:CAST*/
+
+SELECT CAST(CONCAT(SUBSTR(date,7,4),
+SUBSTR(date,1,2),
+SUBSTR(date,4,2))as date) as date
+FROM sf_crime_data
