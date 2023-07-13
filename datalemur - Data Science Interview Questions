@@ -123,3 +123,16 @@ group by 1)
 select count(*)
 from t1
 where member_count > 2
+
+-- Calls to the Advocate4Me call centre are categorised, but sometimes they can't fit neatly into a category. These uncategorised calls are labelled “n/a”, or are just empty (when a support agent enters nothing into the category field).
+--Write a query to find the percentage of calls that cannot be categorised. Round your answer to 1 decimal place.
+
+SELECT round(
+    100.0* count(case_id) /
+        (SELECT COUNT(*) FROM callers),1) AS uncategorised_call_pct
+FROM callers
+WHERE call_category IS NULL 
+  OR call_category = 'n/a';
+
+
+
